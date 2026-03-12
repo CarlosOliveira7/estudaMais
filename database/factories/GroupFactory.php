@@ -20,7 +20,6 @@ class GroupFactory extends Factory
         return [
             'name' => fake()->sentence(3),
             'description' => fake()->paragraph(),
-            'topic' => fake()->randomElement(['Matemática', 'Programação', 'Inglês', 'História', 'Design']),
             'invite_code' => Str::upper(Str::random(6)),
             'user_id' => User::factory(), 
             'is_private' => fake()->boolean(20),

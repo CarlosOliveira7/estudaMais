@@ -10,8 +10,8 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-
-class MessageSent
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+class MessageSent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -24,10 +24,11 @@ class MessageSent
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
 
-    public function broadcastOn(): array
+   public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('groups' . $this->message->group_id),
+          
+            new PrivateChannel('groups.' . $this->message->group_id),
         ];
     }
 
@@ -36,5 +37,10 @@ class MessageSent
         return [
             'message' => $this->message->load('user'),
         ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'MessageSent';
     }
 }

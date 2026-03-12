@@ -36,7 +36,6 @@ class MessageController extends Controller
      */
     public function store(StoreMessageRequest $request, Group $group): RedirectResponse
     {
-        dd("oi");
         $message = $group->messages()->create([
             'content' => $request->validated()['content'],
             'user_id' => auth()->id()

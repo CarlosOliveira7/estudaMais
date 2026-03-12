@@ -15,7 +15,11 @@ export default function Dashboard({ auth, groups }) {
 
             <div className="py-8">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-
+                    <Link
+                    className='inline-block mb-4 p-4 bg-[white] border border-transparent rounded-md  text-base  tracking-widest hover:bg-indigo-200 transition ease-in-out duration-150 text-center font-bold' 
+                    href={route('group.create')}>
+                        Criar Grupo
+                    </Link>
                     {groups && groups.length > 0 ? (
                         groups.map((group) => (
                             <div key={group.id} className="p-6 text-gray-900 bg-slate-400 shadow-sm sm:rounded-lg mb-4 flex flex-col gap-3">

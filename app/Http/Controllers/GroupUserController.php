@@ -10,9 +10,11 @@ class GroupUserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Group $group)
     {
-        //
+        $group_users = Group_user::where('group_id','=',$group->id);
+        dd($group_users);
+        return $group_users;
     }
 
     /**

@@ -9,7 +9,7 @@ class Topic extends Model
 {
     /** @use HasFactory<\Database\Factories\TopicFactory> */
     use HasFactory;
-
+    protected $guarded = [];
 
     public function groups()
     {

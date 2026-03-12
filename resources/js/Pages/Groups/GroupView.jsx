@@ -1,7 +1,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import { Link } from '@inertiajs/react';
+import { useState } from 'react';
 export default function GroupView({ auth, group }) {
+    const [showMembers, setShowMembers] = useState(false);
+    const members = group.members || [];
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -49,13 +52,67 @@ export default function GroupView({ auth, group }) {
                         </div>
                         <Link
                             href={route('message.chat', group.id)}
-                            className="inline-block px-4 py-2 bg-[#0f0f1e] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-800 transition ease-in-out duration-150 text-center"
+                            className="inline-block p-4 bg-[white] border border-transparent rounded-md  text-base  tracking-widest hover:bg-indigo-200 transition ease-in-out duration-150 text-center"
                         >
-                            Chat do Grupo
+                            💬Chat do Grupo
                         </Link>
-                        <div className="bg-white p-4 rounded-lg shadow cursor-pointer hover:bg-gray-50 transition">
+                        <div 
+                            onClick={() => setShowMembers(!showMembers)}
+                            href = {route('group.members',group.id)}
+                            className={`p-4 rounded-lg shadow cursor-pointer transition ${
+                                showMembers ? 'bg-indigo-50 border-2 border-indigo-200' : 'bg-white hover:bg-gray-50'
+                            }`}
+                        >
                             👥 Membros
                         </div>
+                        {showMembers && (
+                        <div className="mt-6 overflow-hidden bg-white shadow-sm sm:rounded-lg animate-fade-in-down">
+                            <div className="p-6 text-gray-900 border-b border-gray-200">
+                                <h3 className="text-lg font-bold mb-4">Membros do Grupo</h3>
+                                
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm text-left text-gray-500">
+                                        <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+                                            <tr>
+                                                <th scope="col" className="px-6 py-3 rounded-tl-lg">Nome</th>
+                                                <th scope="col" className="px-6 py-3">Email</th>
+                                                <th scope="col" className="px-6 py-3 rounded-tr-lg">Função</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {members.length > 0 ? (
+                                                members.map((member) => (
+                                                    <tr key={member.id} className="bg-white border-b hover:bg-gray-50">
+                                                        <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-3">
+                                                            {/* Avatar placeholder simples */}
+                                                            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold">
+                                                                {member.name.charAt(0).toUpperCase()}
+                                                            </div>
+                                                            {member.name}
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            {member.email}
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                                                                {member.role || 'Membro'}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan="3" className="px-6 py-8 text-center text-gray-500">
+                                                        Nenhum membro encontrado. Certifique-se de que o backend está enviando `group.members`.
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     </div>
                 </div>
             </div>
