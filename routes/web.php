@@ -42,9 +42,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/{group}/show', [GroupController::class, 'show'])->name('groups.show');
 
     //ROTAS DE MEMBROS
+    Route::get('/generateLink/{group}', [GroupController::class, 'generateInviteLink'])->name('group.gerenateLink');
+    Route::get('/inviteLink/{invite_code}/join', [GroupController::class, 'invited'])->name('member.join');
+    Route::post('/inviteLink/{invite_code}/join', [GroupController::class, 'inviteLink'])->name('member.enter');
     Route::get('/dashboard/{group}/members', [GroupUserController::class ,'index'])->name('group.members');
     Route::get('/dashboard/group/create', [GroupController::class, 'create'])->name('group.create');
     Route::post('/dashboard/group/store', [GroupController::class, 'store'])->name('group.store');
+    Route::delete('/dashboard/delete/{group}', [GroupController::class, 'destroy'])->name('group.delete');
     //ROTAS DO CHAT DO GRUPO
 
     Route::get('/chat/{group}', [MessageController::class, 'index'])->name('message.chat');

@@ -12,14 +12,12 @@ class GroupUserController extends Controller
      */
     public function index(Group $group)
     {
-        $group_users = Group_user::where('group_id','=',$group->id);
-        dd($group_users);
-        return $group_users;
+        return $group->users();
     }
 
     /**
      * Show the form for creating a new resource.
-     */
+     */ 
     public function create()
     {
         //
@@ -62,6 +60,6 @@ class GroupUserController extends Controller
      */
     public function destroy(Group_user $group_user)
     {
-        //
+        
     }
 }
