@@ -9,6 +9,9 @@ use Inertia\Inertia;
 use Illuminate\Support\Str;
 use App\Models\Topic;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
+use App\Policies\GroupPolicy;
 class GroupController extends Controller
 {
     /**
@@ -28,7 +31,7 @@ class GroupController extends Controller
      * Show the form for creating a new resource.
      */
     public function create()
-    {
+    {   
         return Inertia::render('Groups/CreateGroup');
     }
 
@@ -37,6 +40,8 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
+
+        Gate::authorize('create', Group::class);
         $group = DB::transaction(function () use ($request) {
         
         $request->validate([
@@ -66,7 +71,7 @@ class GroupController extends Controller
             }
         }
 
-        
+        $newGroup->members()->attach(auth()->id(), ['role' => 'admin']);
         $newGroup->topics()->sync($topicIds);
 
         return $newGroup; 
@@ -80,12 +85,16 @@ class GroupController extends Controller
      */
     public function show(Group $group)
     {
-        // 1. Carrega os membros e os tópicos desse grupo específico
+
         $group->load(['members', 'topics']);
 
-        // 2. Retorna apenas esse grupo para a página correta
         return Inertia::render('Groups/GroupView', [
-            'group' => $group
+            'group' => $group,
+            'members' => $group->members,
+            'can' => [
+            'delete' => auth()->user()->can('delete', $group),
+            
+            ]
         ]);
     }
 
@@ -108,8 +117,75 @@ class GroupController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Group $group)
+    public function destroy(Group $group, User $user)
     {
-        //
+        Gate::authorize('delete', $group);
+
+ 
+        $group->delete();
+
+        return redirect()->route('dashboard')->with('message', 'Grupo excluído com sucesso!');
+    }
+
+
+    public function invited($invite_code) {
+        $group = Group::with('topics')->where('invite_code', $invite_code)->firstOrFail();
+        $group->load('topics');
+        
+        return Inertia::render('Groups/InviteLink', [
+            "group" => $group
+        ]);
+    }
+
+    public function generateInviteLink(Group $group) {
+
+       // $groupCode = Group::where('invite_code', '=', $request->invite_code);
+
+        return route('member.join', ['invite_code' => $group->invite_code]);
+    }
+
+    public function inviteLink(Group $group, User $user) {
+        if ($group->invite_code !== $code) {
+        abort(403, 'Link de convite inválido ou expirado.'); 
+    }
+    
+    $user = $request->user();
+
+    if ($user) {
+        
+        if (!$group->users()->where('user_id', $user->id)->exists()) {
+
+            $group->users()->attach($user->id);
+        }
+
+        return redirect()->route('groups.show', $group->id)
+                         ->with('success', 'Você entrou no grupo com sucesso!');
+    }
+    
+
+        return redirect()->route('login');
+        
+    }
+
+
+    public function addMember(Group $group, User $user) {
+
+        if (user()->auth()) {
+            GroupUser::create([
+                'user_id' => $user->id(),
+                'group_id' => $group->id(),
+                'role' => 'member'
+            ]);
+        }   
+    }
+
+
+
+    public function RemoveMember(Group $group, User $user) {
+
+        if (user()->auth() && $user.role == 'admin') {
+            $userRemove = GroupUser::find($user->id());
+            GroupUser::delete($userRemove);
+        }
     }
 }
